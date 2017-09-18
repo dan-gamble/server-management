@@ -25,8 +25,8 @@ class ServerManagementBaseCommand(BaseCommand):
         )
 
         parser.add_argument(
-            '--debug',
-            dest='debug',
+            '--quiet',
+            dest='quiet',
             action='store_true',
             default=False,
         )
@@ -39,7 +39,7 @@ class ServerManagementBaseCommand(BaseCommand):
         )
 
 
-def load_config(env, remote=None, config_user='deploy', debug=False):
+def load_config(env, remote=None, config_user='deploy', quiet=False):
     env['sudo_prefix'] += '-H '
 
     # Load the json file
@@ -48,7 +48,8 @@ def load_config(env, remote=None, config_user='deploy', debug=False):
             config = json.loads(json_data.read())
     except Exception as e:
         print(e)
-        raise Exception('Something is wrong with the server.json file, make sure it exists and is valid JSON.')
+        raise Exception(
+            'Something is wrong with the server.json file, make sure it exists and is valid JSON.')
 
     # Define current host from settings in server config
     # First check if there is a single remote or multiple.
@@ -69,7 +70,8 @@ def load_config(env, remote=None, config_user='deploy', debug=False):
             ', '.join(config['remotes'].keys())
         ))
 
-        remote_prompt = prompt('Please enter a remote: ', default=remote_keys[0], validate=lambda x: x in remote_keys)
+        remote_prompt = prompt(
+            'Please enter a remote: ', default=remote_keys[0], validate=lambda x: x in remote_keys)
 
     remote = config['remotes'][remote_prompt]
     env.host_string = remote['server']['ip']
@@ -115,7 +117,7 @@ def load_config(env, remote=None, config_user='deploy', debug=False):
                 print('Failed to connect to remote server')
                 exit()
 
-    if not debug:
+    if not quiet:
         # Change the output to be less verbose.
         fabric.state.output['stdout'] = False
         fabric.state.output['running'] = False
@@ -164,7 +166,8 @@ def run_tasks(env, tasks, user=None):
                 task_result = run(task['command'])
         # Fabric API
         elif 'fabric_command' in task:
-            task_result = getattr(fabric.api, task['fabric_command'])(*task.get('fabric_args', []), **task.get('fabric_kwargs', {}))
+            task_result = getattr(fabric.api, task['fabric_command'])(
+                *task.get('fabric_args', []), **task.get('fabric_kwargs', {}))
 
         # Check result
         check_request(task, task_result)
