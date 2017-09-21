@@ -11,7 +11,7 @@ class Command(ServerManagementBaseCommand):
 
     def handle(self, *args, **options):
         # Load server config from project
-        _, remote = load_config(env, options.get('remote', ''), config_user='root', debug=options['debug'])
+        _, remote = load_config(env, options.get('remote', ''), config_user='root', quiet=options['quiet'])
 
         if django_settings.DEBUG:
             abort(
