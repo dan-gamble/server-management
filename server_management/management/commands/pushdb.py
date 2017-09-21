@@ -8,7 +8,7 @@ class Command(ServerManagementBaseCommand):
 
     def handle(self, *args, **options):
         # Load server config from project
-        config, remote = load_config(env, options.get('remote', ''), debug=options['debug'])
+        config, remote = load_config(env, options.get('remote', ''), quiet=options['quiet'])
 
         with settings(warn_only=True):
 
