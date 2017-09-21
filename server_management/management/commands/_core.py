@@ -117,7 +117,7 @@ def load_config(env, remote=None, config_user='deploy', quiet=False):
                 print('Failed to connect to remote server')
                 exit()
 
-    if not quiet:
+    if quiet:
         # Change the output to be less verbose.
         fabric.state.output['stdout'] = False
         fabric.state.output['running'] = False
