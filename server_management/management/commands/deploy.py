@@ -143,7 +143,6 @@ class Command(ServerManagementBaseCommand):
 
         # Create session_files
         session_files = {
-            'gunicorn_start': NamedTemporaryFile(mode='w+', delete=False),
             'supervisor_config': NamedTemporaryFile(mode='w+', delete=False),
             'memcached_supervisor_config': NamedTemporaryFile(mode='w+', delete=False),
             'nginx_site_config': NamedTemporaryFile(mode='w+', delete=False),
@@ -152,12 +151,6 @@ class Command(ServerManagementBaseCommand):
         }
 
         # Parse files
-        session_files['gunicorn_start'].write(render_to_string('gunicorn_start', {
-            'project': project_folder,
-            'settings': remote['server'].get('settings_file', 'production')
-        }))
-        session_files['gunicorn_start'].close()
-
         session_files['supervisor_config'].write(render_to_string('supervisor_config', {
             'project': project_folder
         }))
@@ -631,13 +624,6 @@ class Command(ServerManagementBaseCommand):
         run_tasks(env, venv_tasks, user=project_folder)
 
         gunicorn_tasks = [
-            {
-                'title': 'Create the Gunicorn script file',
-                'fabric_command': 'put',
-                'fabric_args': [session_files['gunicorn_start'].name, '/var/www/{project}/gunicorn_start'.format(
-                    project=project_folder,
-                )],
-            },
             {
                 'title': 'Make the Gunicorn script file executable',
                 'command': 'chmod +x /var/www/{project}/gunicorn_start'.format(
